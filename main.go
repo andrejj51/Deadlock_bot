@@ -19,10 +19,6 @@ var playerUrl = map[string][2]string{
 	"Макс":   [2]string{"Макс", "https://deadlocktracker.gg/player/202150072"},
 }
 
-/*func answer(players map[string]player) string{
-
-}*/
-
 // значение winrate по типу 46%
 // принимает url player[name]
 func winrate(playerUrlValue string) string {
@@ -99,6 +95,11 @@ func profile(playerUrlValue string) player {
 	}
 }
 
+// возвращает готовый ответ по профилю
+func answerStat(player player) string {
+	return fmt.Sprintf("%s Winrate: %s", player.name, player.rate)
+}
+
 func main() {
 
 	conf := telebot.Configuration{
@@ -111,7 +112,7 @@ func main() {
 		var answer string
 		switch mess {
 		case "/test":
-			fmt.Println(profile("Андрей"))
+			answer = answerStat(profile(playerUrl["Андрей"][0]))
 		case "/deadlock":
 			answer = "кек"
 		default:
