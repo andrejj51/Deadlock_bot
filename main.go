@@ -2,10 +2,31 @@ package main
 
 import (
 	"github.com/cortinico/telebot"
+	"github.com/gocolly/colly"
 )
 
-func Deadlock() string {
-	return "228"
+// значение winrate по типу 46%
+func winrate() string {
+	var value string
+	// Инициализация Colly
+	c := colly.NewCollector()
+
+	c.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 YaBrowser/24.7.0.0 Safari/537.36"
+
+	// Настройка запроса
+	c.OnHTML("span.shad2", func(e *colly.HTMLElement) {
+		// Получение значения div
+
+		value = e.Text
+
+	})
+
+	// Отправка запроса
+	err := c.Visit("https://deadlocktracker.gg/player/71035446")
+	if err != nil {
+		panic(err)
+	}
+	return value
 }
 
 func main() {
@@ -21,7 +42,7 @@ func main() {
 		case "/test":
 			answer = "Test command works :)"
 		case "/deadlock":
-			answer = Deadlock()
+			answer = winrate()
 		default:
 			answer = "You typed " + mess
 		}
