@@ -15,8 +15,12 @@ type player struct {
 }
 
 var playerUrl = map[string][2]string{
-	"Андрей": {"Андрей", "https://deadlocktracker.gg/player/71035446"},
-	"Макс":   {"Макс", "https://deadlocktracker.gg/player/202150072"},
+	"Андрей":  {"Андрей", "https://deadlocktracker.gg/player/71035446"},
+	"Макс":    {"Макс", "https://deadlocktracker.gg/player/202150072"},
+	"Тимофей": {"Тимофей", "https://deadlocktracker.gg/player/1217462833"},
+	"Димасик": {"Димасик", "https://deadlocktracker.gg/player/1713203171"},
+	"Лёха":    {"Лёха", "https://deadlocktracker.gg/player/93910342"},
+	"Саша":    {"Саша", "https://deadlocktracker.gg/player/97066121"},
 }
 
 // значение winrate по типу 46%
@@ -85,6 +89,11 @@ func stats(playerUrlValue string) []string {
 // возвращает профиль
 func profile(playerUrlValue string) player {
 	var player player
+	if len(stats(playerUrl[playerUrlValue][1])) == 0 {
+		player.name = playerUrl[playerUrlValue][0]
+		player.url = playerUrl[playerUrlValue][1]
+		return player
+	}
 	player.name = playerUrl[playerUrlValue][0]
 	player.url = playerUrl[playerUrlValue][1]
 	player.rate = winrate(playerUrl[playerUrlValue][1])[2:] // Winrate
@@ -95,14 +104,20 @@ func profile(playerUrlValue string) player {
 
 // возвращает готовый ответ по профилю
 func answerStat(player player) string {
-	mes := "%s\n" +
-		"Winrate: %s      | Matches: %s" +
-		"DLT Raiting: %s  | Max Raiting: %s\n" +
-		"KDA: %s          | Souls/min: %s\n" +
-		"Kills: %s        | Creeps Kill: %s\n" +
-		"Deaths: %s       | Naturals: %s\n" +
-		"Assists: %s      | LastHits/min: %s\n" +
-		"AVG Damage: %s   | AVG Denies: %s\n"
+	var mes string
+	if player.rate == "" {
+		mes = fmt.Sprintf("%s не открыл свою стату (попуск)", player.name)
+		return mes
+	}
+
+	mes = "%s\n" +
+		"Winrate: %s\nMatches: %s\n" +
+		"DLT Raiting: %s\nMax Raiting: %s\n" +
+		"KDA: %s\nSouls/min: %s\n" +
+		"Kills: %s\nCreeps Kill: %s\n" +
+		"Deaths: %s\nNaturals: %s\n" +
+		"Assists: %s\nLastHits/min: %s\n" +
+		"AVG Damage: %s\nAVG Denies: %s\n"
 
 	return fmt.Sprintf(mes, player.name,
 		player.rate, player.statistic[0],
@@ -115,6 +130,29 @@ func answerStat(player player) string {
 	)
 }
 
+/*
+func space(mes string) string {
+	//var lenListString []int
+	var line1 []string
+	var line2 []string
+	var line []string
+
+	list := strings.Split(mes, "\n")
+
+	for i := range list[:len(list)-2] {
+		fmt.Println(list[i+1])
+		line1 = append(line1, strings.Split(list[i+1], "|")[0])
+		line2 = append(line2, strings.Split(list[i+1], "|")[1])
+	}
+
+	for i := 0; i < 7; i++ {
+		line = append(line, fmt.Sprintf("%-28s"+"| "+"%s\n", line1[i], line2[i]))
+	}
+	result := strings.Join(line, "")
+	return fmt.Sprintln(list[0] + "\n" + result)
+
+}*/
+
 func main() {
 
 	conf := telebot.Configuration{
@@ -126,9 +164,25 @@ func main() {
 	bot.Start(conf, func(mess string) (string, error) {
 		var answer string
 		switch mess {
-		case "/test":
+		case "/Андрей в дедлоке":
 			// answer = answerStat(profile(playerUrl["Андрей"][0]))
 			answer = answerStat(profile(playerUrl["Андрей"][0]))
+			//space(answer)
+		case "/Макс в дедлоке":
+			// answer = answerStat(profile(playerUrl["Андрей"][0]))
+			answer = answerStat(profile(playerUrl["Макс"][0]))
+		case "/Тимофей в дедлоке":
+			// answer = answerStat(profile(playerUrl["Андрей"][0]))
+			answer = answerStat(profile(playerUrl["Тимофей"][0]))
+		case "/Димасик в дедлоке":
+			// answer = answerStat(profile(playerUrl["Андрей"][0]))
+			answer = answerStat(profile(playerUrl["Димасик"][0]))
+		case "/Лёха в дедлоке":
+			// answer = answerStat(profile(playerUrl["Андрей"][0]))
+			answer = answerStat(profile(playerUrl["Лёха"][0]))
+		case "/Саша в дедлоке":
+			// answer = answerStat(profile(playerUrl["Андрей"][0]))
+			answer = answerStat(profile(playerUrl["Саша"][0]))
 		case "/deadlock":
 			answer = "кек"
 		default:
