@@ -15,8 +15,8 @@ type player struct {
 }
 
 var playerUrl = map[string][2]string{
-	"Андрей": [2]string{"Андрей", "https://deadlocktracker.gg/player/71035446"},
-	"Макс":   [2]string{"Макс", "https://deadlocktracker.gg/player/202150072"},
+	"Андрей": {"Андрей", "https://deadlocktracker.gg/player/71035446"},
+	"Макс":   {"Макс", "https://deadlocktracker.gg/player/202150072"},
 }
 
 // значение winrate по типу 46%
@@ -57,8 +57,14 @@ func stats(playerUrlValue string) []string {
 		// Получение значения div
 
 		value = e.Text
+
 		list = append(list, value)
 
+	})
+
+	// Добавляем обработчик для ошибки
+	c.OnError(func(_ *colly.Response, err error) {
+		fmt.Printf("Error: %v\n", err)
 	})
 
 	// Отправка запроса
@@ -66,38 +72,47 @@ func stats(playerUrlValue string) []string {
 	if err != nil {
 		panic(err)
 	}
+	if len(list) != 13 {
+		fmt.Println("НЕ РАВЕН 13*************")
+		fmt.Println(len(list))
+
+	}
 	return list
+
 }
 
 // принимает ключ
 // возвращает профиль
 func profile(playerUrlValue string) player {
+	var player player
+	player.name = playerUrl[playerUrlValue][0]
+	player.url = playerUrl[playerUrlValue][1]
+	player.rate = winrate(playerUrl[playerUrlValue][1])[2:] // Winrate
+	player.statistic = stats(playerUrl[playerUrlValue][1])
 
-	return player{
-		name: playerUrl[playerUrlValue][0],
-		url:  playerUrl[playerUrlValue][1],
-		rate: winrate(playerUrl[playerUrlValue][1]), // Winrate
-		statistic: []string{
-			stats(playerUrl[playerUrlValue][1])[0],  // Matches
-			stats(playerUrl[playerUrlValue][1])[1],  // DLT Rating
-			stats(playerUrl[playerUrlValue][1])[2],  // Max Rating
-			stats(playerUrl[playerUrlValue][1])[3],  // KDA
-			stats(playerUrl[playerUrlValue][1])[4],  // Souls/min
-			stats(playerUrl[playerUrlValue][1])[5],  // Kills
-			stats(playerUrl[playerUrlValue][1])[6],  // Creeps Kills
-			stats(playerUrl[playerUrlValue][1])[7],  // Deaths
-			stats(playerUrl[playerUrlValue][1])[8],  // Neutrals
-			stats(playerUrl[playerUrlValue][1])[9],  // Assists
-			stats(playerUrl[playerUrlValue][1])[10], // LastHits/min
-			stats(playerUrl[playerUrlValue][1])[11], // AVG Damage
-			stats(playerUrl[playerUrlValue][1])[12], // AVG Denies
-		},
-	}
+	return player
 }
 
 // возвращает готовый ответ по профилю
 func answerStat(player player) string {
-	return fmt.Sprintf("%s Winrate: %s", player.name, player.rate)
+	mes := "%s\n" +
+		"Winrate: %s      | Matches: %s" +
+		"DLT Raiting: %s  | Max Raiting: %s\n" +
+		"KDA: %s          | Souls/min: %s\n" +
+		"Kills: %s        | Creeps Kill: %s\n" +
+		"Deaths: %s       | Naturals: %s\n" +
+		"Assists: %s      | LastHits/min: %s\n" +
+		"AVG Damage: %s   | AVG Denies: %s\n"
+
+	return fmt.Sprintf(mes, player.name,
+		player.rate, player.statistic[0],
+		player.statistic[1], player.statistic[2],
+		player.statistic[3], player.statistic[4],
+		player.statistic[5], player.statistic[6],
+		player.statistic[7], player.statistic[8],
+		player.statistic[9], player.statistic[10],
+		player.statistic[11], player.statistic[12],
+	)
 }
 
 func main() {
@@ -112,6 +127,7 @@ func main() {
 		var answer string
 		switch mess {
 		case "/test":
+			// answer = answerStat(profile(playerUrl["Андрей"][0]))
 			answer = answerStat(profile(playerUrl["Андрей"][0]))
 		case "/deadlock":
 			answer = "кек"
