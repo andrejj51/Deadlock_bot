@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/cortinico/telebot"
 	"github.com/gocolly/colly"
@@ -76,11 +77,6 @@ func stats(playerUrlValue string) []string {
 	if err != nil {
 		panic(err)
 	}
-	if len(list) != 13 {
-		fmt.Println("НЕ РАВЕН 13*************")
-		fmt.Println(len(list))
-
-	}
 	return list
 
 }
@@ -153,6 +149,34 @@ func space(mes string) string {
 
 }*/
 
+func topWinrate() {
+	var top map[string]player
+	//var topSort map[string]string
+	top = make(map[string]player)
+	for i := range playerUrl {
+		if profile(playerUrl[i][0]).name != "" {
+			top[profile(playerUrl[i][0]).name] = profile(playerUrl[i][0])
+		}
+	}
+
+	// сортировка
+	/*topSort = make(map[string]string)
+	for key, val := range top {
+		topSort[key] = val.rate
+	}*/
+
+	values := make([]string, 0, len(top))
+	for _, v := range top {
+		values = append(values, v.rate)
+	}
+	sort.Slice(values, func(i, j int) bool { return values[i] > values[j] })
+	//fmt.Println(values)
+	for _, k := range values {
+		fmt.Println(k, top[k])
+	}
+
+}
+
 func main() {
 
 	conf := telebot.Configuration{
@@ -169,22 +193,19 @@ func main() {
 			answer = answerStat(profile(playerUrl["Андрей"][0]))
 			//space(answer)
 		case "/Макс в дедлоке":
-			// answer = answerStat(profile(playerUrl["Андрей"][0]))
 			answer = answerStat(profile(playerUrl["Макс"][0]))
+			topWinrate()
 		case "/Тимофей в дедлоке":
-			// answer = answerStat(profile(playerUrl["Андрей"][0]))
 			answer = answerStat(profile(playerUrl["Тимофей"][0]))
 		case "/Димасик в дедлоке":
-			// answer = answerStat(profile(playerUrl["Андрей"][0]))
 			answer = answerStat(profile(playerUrl["Димасик"][0]))
 		case "/Лёха в дедлоке":
-			// answer = answerStat(profile(playerUrl["Андрей"][0]))
 			answer = answerStat(profile(playerUrl["Лёха"][0]))
 		case "/Саша в дедлоке":
-			// answer = answerStat(profile(playerUrl["Андрей"][0]))
 			answer = answerStat(profile(playerUrl["Саша"][0]))
 		case "/deadlock":
 			answer = "кек"
+			topWinrate()
 		default:
 			answer = "You typed " + mess
 		}
